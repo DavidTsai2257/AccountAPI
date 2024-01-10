@@ -1,31 +1,80 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using AccountAPI.Models;
+using AccountAPI.Services;
+using AccountAPI.SysEnum;
+using Newtonsoft.Json.Linq;
 
 namespace AccountAPI.Controllers;
-
+[ApiController]
+[Route("Home")]
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private SQLServerService _sqlServerService;
+    private CommonService _commonService;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(SQLServerService sqlServerService,CommonService commonService)
     {
-        _logger = logger;
+        _sqlServerService = sqlServerService;
+        _commonService = commonService;
     }
-
-    public IActionResult Index()
+    [HttpGet]
+    public IActionResult GetAccountList()
     {
-        return View();
+        var result = _sqlServerService.GetAccountList();
+        if (result.Count > 0)
+            return Json(_commonService.ResponseResult<List<AccountModel>>(ResponseStatusEnum.success, "撈取成功", result));
+        else
+            return Json(_commonService.ResponseResult<JArray>(ResponseStatusEnum.fail, "查無資料", new JArray()));
     }
-
-    public IActionResult Privacy()
+    [HttpGet("{id}")]
+    public IActionResult GetAccount(int id)
     {
-        return View();
+        var result = _sqlServerService.GetAccountById(id);
+        if (result != null)
+            return Json(_commonService.ResponseResult<AccountModel>(ResponseStatusEnum.success, "撈取成功", result));
+        else
+            return Json(_commonService.ResponseResult<JArray>(ResponseStatusEnum.fail, "查無資料", new JArray()));
     }
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
+    [HttpPost]
+    public IActionResult AddAccount([FromBody] AddAccountRequestModel model)
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        var result = new ResponseModel<string>();
+        var service = _sqlServerService.AddAccount(model);
+        if(service == -1)
+        {
+            HttpContext.Response.StatusCode = 400;
+            result = _commonService.ResponseResult<string>(ResponseStatusEnum.fail, "新增失敗");
+        }
+        else
+        {
+            result = _commonService.ResponseResult<string>(ResponseStatusEnum.success, "新增成功");
+        }
+        return Json(result);
+    }
+    [HttpPut("{id}")]
+    public IActionResult EditFeature([FromRoute] int id, [FromBody] EditAccountRequestModel model)
+    {
+        var result = new ResponseModel<string>();
+        var service = _sqlServerService.EditAccount(id, model);
+        if(service == false)
+        {
+            HttpContext.Response.StatusCode = 400;
+            result = _commonService.ResponseResult<string>(ResponseStatusEnum.fail, "修改失敗");
+        }
+        else
+        {
+            result = _commonService.ResponseResult<string>(ResponseStatusEnum.success, "修改成功");
+        }
+        return Json(result);
+    }
+    [HttpDelete("{id}")]
+    public IActionResult DeleteAccount(int id)
+    {
+        var result = new ResponseModel<string>();
+        var service = _sqlServerService.DeleteAccount(id);
+        if (service == true)
+            return Json(_commonService.ResponseResult<string>(ResponseStatusEnum.success, "刪除成功"));
+        else
+            return Json(_commonService.ResponseResult<JArray>(ResponseStatusEnum.fail, "刪除失敗"));
     }
 }
