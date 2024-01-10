@@ -1,6 +1,7 @@
 using AccountAPI.Models;
 using AccountAPI.Services;
 using AccountAPI.SysEnum;
+using CSICsSystemNotifySchedule.Adapters;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
@@ -14,8 +15,9 @@ public static class ServiceCollectionExtensions
     /// <returns></returns>
     public static IServiceCollection AddAPIService(this IServiceCollection services)
     {
-        services.AddTransient<SQLServerService>();
+        services.AddTransient<AccountService>();
         services.AddTransient<CommonService>();
+        services.AddTransient<SQLServerAdapter>();
         // services.AddHttpContextAccessor();
         // //IP
         // services.TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
