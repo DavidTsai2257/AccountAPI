@@ -9,18 +9,18 @@ namespace AccountAPI.Controllers;
 [Route("Home")]
 public class HomeController : Controller
 {
-    private SQLServerService _sqlServerService;
+    private AccountService _accountService;
     private CommonService _commonService;
 
-    public HomeController(SQLServerService sqlServerService,CommonService commonService)
+    public HomeController(AccountService accountService,CommonService commonService)
     {
-        _sqlServerService = sqlServerService;
+        _accountService = accountService;
         _commonService = commonService;
     }
     [HttpGet]
     public IActionResult GetAccountList()
     {
-        var result = _sqlServerService.GetAccountList();
+        var result = _accountService.GetAccountList();
         if (result.Count > 0)
             return Json(_commonService.ResponseResult<List<AccountModel>>(ResponseStatusEnum.success, "撈取成功", result));
         else
@@ -29,7 +29,7 @@ public class HomeController : Controller
     [HttpGet("{id}")]
     public IActionResult GetAccount(int id)
     {
-        var result = _sqlServerService.GetAccountById(id);
+        var result = _accountService.GetAccountById(id);
         if (result != null)
             return Json(_commonService.ResponseResult<AccountModel>(ResponseStatusEnum.success, "撈取成功", result));
         else
@@ -39,7 +39,7 @@ public class HomeController : Controller
     public IActionResult AddAccount([FromBody] AddAccountRequestModel model)
     {
         var result = new ResponseModel<string>();
-        var service = _sqlServerService.AddAccount(model);
+        var service = _accountService.AddAccount(model);
         if(service == -1)
         {
             HttpContext.Response.StatusCode = 400;
@@ -55,15 +55,15 @@ public class HomeController : Controller
     public IActionResult EditFeature([FromRoute] int id, [FromBody] EditAccountRequestModel model)
     {
         var result = new ResponseModel<string>();
-        var service = _sqlServerService.EditAccount(id, model);
-        if(service == false)
+        var service = _accountService.EditAccount(id, model);
+        if(service == 1)
         {
-            HttpContext.Response.StatusCode = 400;
-            result = _commonService.ResponseResult<string>(ResponseStatusEnum.fail, "修改失敗");
+            result = _commonService.ResponseResult<string>(ResponseStatusEnum.success, "修改成功");
         }
         else
         {
-            result = _commonService.ResponseResult<string>(ResponseStatusEnum.success, "修改成功");
+            HttpContext.Response.StatusCode = 400;
+            result = _commonService.ResponseResult<string>(ResponseStatusEnum.fail, "修改失敗");
         }
         return Json(result);
     }
@@ -71,8 +71,8 @@ public class HomeController : Controller
     public IActionResult DeleteAccount(int id)
     {
         var result = new ResponseModel<string>();
-        var service = _sqlServerService.DeleteAccount(id);
-        if (service == true)
+        var service = _accountService.DeleteAccount(id);
+        if (service == 1)
             return Json(_commonService.ResponseResult<string>(ResponseStatusEnum.success, "刪除成功"));
         else
             return Json(_commonService.ResponseResult<JArray>(ResponseStatusEnum.fail, "刪除失敗"));
