@@ -17,6 +17,12 @@ public class HomeController : Controller
         _accountService = accountService;
         _commonService = commonService;
     }
+    /// <summary>
+    /// 獲取人員清單
+    /// </summary>
+    /// <remarks>
+    /// Author : David \
+    /// </remarks>
     [HttpGet]
     public IActionResult GetAccountList()
     {
@@ -26,6 +32,12 @@ public class HomeController : Controller
         else
             return Json(_commonService.ResponseResult<JArray>(ResponseStatusEnum.fail, "查無資料", new JArray()));
     }
+    /// <summary>
+    /// 獲取人員單筆資料
+    /// </summary>
+    /// <remarks>
+    /// Author : David \
+    /// </remarks>
     [HttpGet("{id}")]
     public IActionResult GetAccount(int id)
     {
@@ -35,6 +47,12 @@ public class HomeController : Controller
         else
             return Json(_commonService.ResponseResult<JArray>(ResponseStatusEnum.fail, "查無資料", new JArray()));
     }
+    /// <summary>
+    /// 新增人員
+    /// </summary>
+    /// <remarks>
+    /// Author : David \
+    /// </remarks>
     [HttpPost]
     public IActionResult AddAccount([FromBody] AddAccountRequestModel model)
     {
@@ -51,6 +69,12 @@ public class HomeController : Controller
         }
         return Json(result);
     }
+    /// <summary>
+    /// 修改人員
+    /// </summary>
+    /// <remarks>
+    /// Author : David \
+    /// </remarks>
     [HttpPut("{id}")]
     public IActionResult EditFeature([FromRoute] int id, [FromBody] EditAccountRequestModel model)
     {
@@ -67,6 +91,12 @@ public class HomeController : Controller
         }
         return Json(result);
     }
+    /// <summary>
+    /// 移除人員
+    /// </summary>
+    /// <remarks>
+    /// Author : David \
+    /// </remarks>
     [HttpDelete("{id}")]
     public IActionResult DeleteAccount(int id)
     {
